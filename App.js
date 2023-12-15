@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions, Image, ScrollView, FlatList, } from 'react-native';
+import { Text, View, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions, Image, ScrollView, FlatList, Keyboard, Switch } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Pessoa from './Pessoa';
 import { Picker } from '@react-native-picker/picker';
@@ -47,6 +47,8 @@ export default class hubcenter extends Component {
         { key: 29, nome: 'Pizza Morango com Nutella', valor: 77.00 }
       ],
       quantidade: 1,
+      isKeyboardVisible: false,
+      switchStatus: false
     };
   }
 
@@ -74,61 +76,114 @@ export default class hubcenter extends Component {
     }
   }
 
+  alerta() {
+    alert('OK.');
+  }
+
+  componentDidMount() {
+    this.keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      this._keyboardDidShow,
+    );
+    this.keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      this._keyboardDidHide,
+    );
+  }
+
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  _keyboardDidShow = () => {
+    this.setState({ isKeyboardVisible: true });
+  };
+
+  _keyboardDidHide = () => {
+    this.setState({ isKeyboardVisible: false });
+  };
+
 
   render() {
     let pizzasItem = this.state.pizzas.map((v, k) => {
       if (v.key !== 0) {
-        return <Picker.Item key={k} value={k} label={(v.nome +' - R$ ' + v.valor.toFixed(2))} />
+        return <Picker.Item key={k} value={k} label={(v.nome + ' - R$ ' + v.valor.toFixed(2))} />
       } else {
         return <Picker.Item key={k} value={k} label={v.nome} />
       }
     });
 
-
-
     return (
 
       <View style={styles.container}>
 
-        <Text style={styles.logo}>Menu Pizza</Text>
+        <ScrollView>
 
-        <View style={styles.pickerWrapper}>
+          <Text style={styles.logo}>Menu Pizza</Text>
 
-          <Picker placeholder="Escolha sua pizza" selectedValue={this.state.pizza} onValueChange={(itemValue, itemIndex) => this.setState({ pizza: itemValue })}>
-            {pizzasItem}
-          </Picker>
-        </View>
+          <View style={styles.pickerWrapper}>
+
+            <Picker placeholder="Escolha sua pizza" selectedValue={this.state.pizza} onValueChange={(itemValue, itemIndex) => this.setState({ pizza: itemValue })}>
+              {pizzasItem}
+            </Picker>
+          </View>
+
+          <Image source={require('./src/pizza.png')} style={styles.img}></Image>
+
+          {this.state.pizzas[this.state.pizza].valor !== null && (
+            <>
+
+              <Text style={styles.textoMaior}>{this.selected(this.state.pizza)}</Text>
+
+              <Text style={styles.texto}>{this.state.pizzas[this.state.pizza].nome}{"\n\nR$ " + ((this.state.pizzas[this.state.pizza].valor) * this.state.quantidade).toFixed(2).toString().replaceAll('.', ',')}</Text>
+
+              <TextInput
+                style={styles.quantidadeInput}
+                underlineColorAndroid="transparent"
+                placeholder='Quantidade'
+                placeholderTextColor="rgba(238, 238, 238, 0.5)"
+                value={this.state.quantidade.toString()}
+                onChangeText={(quantidade) => this.onChanged(quantidade)}
+              />
+
+              <Slider
+                value={parseInt(this.state.quantidade || '0', 10)}
+                style={styles.quantidadeInputSlider}
+                minimumValue={1}
+                maximumValue={100}
+                onValueChange={(sliderValue) => this.setState({ quantidade: sliderValue.toFixed(0) })}
+                minimumTrackTintColor="#eee"
+                thumbTintColor="#eee"
+              />
+
+              <View style={styles.switchContainer}>
+                <Switch
+                  value={this.state.switchStatus}
+                  onValueChange={(valueSwitch) => this.setState({ switchStatus: valueSwitch })}
+                  thumbColor={this.state.switchStatus ? "#eee" : "#767577"}
+                  trackColor={{ false: "rgba(238, 238, 238, 0.2)", true: "rgba(255, 255, 255, 0.4)" }}
+                  style={styles.switch}
+                />
+                <Text style={styles.textoSwitch}>Pagamento pelo APP</Text>
+              </View>
 
 
-        {this.state.pizzas[this.state.pizza].valor !== null && (
-          <>
+            </>
+          )}
 
-            <Text style={styles.textoMaior}>{this.selected(this.state.pizza)}</Text>
-
-            <Text style={styles.texto}>{this.state.pizzas[this.state.pizza].nome}{"\n\nR$ " + ((this.state.pizzas[this.state.pizza].valor) * this.state.quantidade).toFixed(2).toString().replaceAll('.', ',')}</Text>
-
-            <TextInput
-              style={styles.quantidadeInput}
-              underlineColorAndroid="transparent"
-              placeholder='Quantidade'
-              placeholderTextColor="rgba(238, 238, 238, 0.5)"
-              value={this.state.quantidade.toString()}
-              onChangeText={(quantidade) => this.onChanged(quantidade)}
-            />
-
-            <Slider
-              value={parseInt(this.state.quantidade || '0', 10)}
-              style={styles.quantidadeInputSlider}
-              minimumValue={1}
-              maximumValue={100}
-              onValueChange={(sliderValue) => this.setState({ quantidade: sliderValue.toFixed(0) })}
-              minimumTrackTintColor="#eee"
-              thumbTintColor="#eee"
-            />
-          </>
+        </ScrollView>
+        {!this.state.isKeyboardVisible && this.state.pizzas[this.state.pizza].valor !== null && (
+          <TouchableOpacity
+            onPress={this.alerta}
+            style={styles.botaoPizza}
+          >
+            <Text style={styles.botaoTexto}>Realizar pedido</Text>
+          </TouchableOpacity>
         )}
 
       </View>
+
 
     );
   }
@@ -141,10 +196,16 @@ const styles = StyleSheet.create({
     /*justifyContent: 'center',
     alignItems: 'center',*/
   },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
   img: {
-    width: 100,
-    height: 100,
+    width: 200,
+    height: 200,
     margin: 10,
+    alignSelf: 'center',
   },
   input: {
     marginTop: 50,
@@ -183,14 +244,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     paddingBottom: 20,
-    paddingTop: 50,
+    paddingTop: 20,
     color: '#eee',
     fontWeight: 'bold'
   },
   textoMaior: {
     textAlign: 'center',
     fontSize: 24,
-    paddingTop: 50,
+    paddingTop: 20,
     color: '#eee',
     fontWeight: 'bold'
   },
@@ -214,9 +275,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  botaoPizza: {
+    position: 'absolute',
+    bottom: 30,
+    width: 200,
+    height: 40,
+    backgroundColor: 'transparent',
+    borderColor: '#eee',
+    borderWidth: 1,
+    color: '#eee',
+    padding: 10,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
   botaoTexto: {
     color: '#eee',
     textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  switch: {
+    alignSelf: 'center',
+  },
+  textoSwitch: {
+    fontSize: 18,
+    paddingBottom: 20,
+    paddingTop: 20,
+    color: '#eee',
+    paddingLeft: 10,
     fontWeight: 'bold'
   },
   box1: {
