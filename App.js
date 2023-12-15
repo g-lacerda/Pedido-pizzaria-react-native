@@ -3,17 +3,10 @@ import { Text, View, StyleSheet, TextInput, Button, TouchableOpacity, Dimensions
 import Svg, { Path } from 'react-native-svg';
 import Pessoa from './Pessoa';
 import { Picker } from '@react-native-picker/picker';
+import Slider from '@react-native-community/slider';
 
 const screenWidth = Dimensions.get('window').width;
 const buttonWidth = screenWidth * 0.25;
-
-const pizzaOptions = [
-  { id: 1, label: 'Calabresa', price: 'R$ 59,90' },
-  { id: 2, label: 'Frango Catupiry', price: 'R$ 63,90' },
-  { id: 3, label: 'Portuguesa', price: 'R$ 55,90' },
-  { id: 4, label: 'Brigadeiro', price: 'R$ 64,90' },
-];
-
 
 export default class hubcenter extends Component {
 
@@ -22,23 +15,77 @@ export default class hubcenter extends Component {
     this.state = {
       pizza: 0,
       pizzas: [
-        {key: 0, nome: 'Escolha sua pizza', valor: null},
-        {key: 1, nome: 'Pizza Calabresa', valor: 59.90},
-        {key: 1, nome: 'Pizza Frango Catupiry', valor: 63.90},
-        {key: 3, nome: 'Pizza Portuguesa', valor: 55.90},
-        {key: 4, nome: 'Pizza Brigadeiro', valor: 64.99}
-      ]
+        { key: 0, nome: 'Escolha sua pizza', valor: null },
+        { key: 1, nome: 'Pizza Calabresa', valor: 59.90 },
+        { key: 1, nome: 'Pizza Frango Catupiry', valor: 63.90 },
+        { key: 3, nome: 'Pizza Portuguesa', valor: 55.90 },
+        { key: 4, nome: 'Pizza Brigadeiro', valor: 64.99 },
+        { key: 5, nome: 'Pizza Margherita', valor: 50.00 },
+        { key: 6, nome: 'Pizza Quatro Queijos', valor: 60.00 },
+        { key: 7, nome: 'Pizza Pepperoni', valor: 65.00 },
+        { key: 8, nome: 'Pizza Vegetariana', valor: 57.00 },
+        { key: 9, nome: 'Pizza Napolitana', valor: 58.00 },
+        { key: 10, nome: 'Pizza Atum', valor: 59.00 },
+        { key: 11, nome: 'Pizza Bacon', valor: 61.00 },
+        { key: 12, nome: 'Pizza Camarão', valor: 70.00 },
+        { key: 13, nome: 'Pizza Carne-seca', valor: 62.00 },
+        { key: 14, nome: 'Pizza Frango com Catupiry', valor: 63.50 },
+        { key: 15, nome: 'Pizza Palmito', valor: 56.00 },
+        { key: 16, nome: 'Pizza Milho', valor: 55.50 },
+        { key: 17, nome: 'Pizza Lombo Canadense', valor: 66.00 },
+        { key: 18, nome: 'Pizza Toscana', valor: 67.00 },
+        { key: 19, nome: 'Pizza Alho e Óleo', valor: 54.00 },
+        { key: 20, nome: 'Pizza Siciliana', valor: 68.00 },
+        { key: 21, nome: 'Pizza Mexicana', valor: 69.00 },
+        { key: 22, nome: 'Pizza Portuguesa Especial', valor: 70.00 },
+        { key: 23, nome: 'Pizza Rúcula com Tomate Seco', valor: 71.00 },
+        { key: 24, nome: 'Pizza Gorgonzola', valor: 72.00 },
+        { key: 25, nome: 'Pizza Doce de Chocolate', valor: 73.00 },
+        { key: 26, nome: 'Pizza Banana com Canela', valor: 74.00 },
+        { key: 27, nome: 'Pizza Prestígio', valor: 75.00 },
+        { key: 28, nome: 'Pizza Romeu e Julieta', valor: 76.00 },
+        { key: 29, nome: 'Pizza Morango com Nutella', valor: 77.00 }
+      ],
+      quantidade: 1,
     };
   }
 
-  selected(){
+  selected() {
     return this.state.pizza ? 'Você escolheu:' : null;
   }
 
+  onChanged(quantidade) {
+    quantidade = quantidade.replace(/[^0-9]/g, '');
+
+    let numQuantidade = parseInt(quantidade, 10);
+
+    if (numQuantidade >= 1 && numQuantidade <= 100) {
+      this.setState({
+        quantidade: quantidade
+      });
+    } else if (quantidade === '') {
+      this.setState({
+        quantidade: ''
+      });
+    } else {
+      this.setState({
+        quantidade: '100'
+      });
+    }
+  }
+
+
   render() {
-    let pizzasItem = this.state.pizzas.map((v,k) => {
-      return <Picker.Item key={k} value={k} label={v.nome}/>
+    let pizzasItem = this.state.pizzas.map((v, k) => {
+      if (v.key !== 0) {
+        return <Picker.Item key={k} value={k} label={(v.nome +' - R$ ' + v.valor.toFixed(2))} />
+      } else {
+        return <Picker.Item key={k} value={k} label={v.nome} />
+      }
     });
+
+
+
     return (
 
       <View style={styles.container}>
@@ -47,14 +94,39 @@ export default class hubcenter extends Component {
 
         <View style={styles.pickerWrapper}>
 
-        <Picker placeholder="Escolha sua pizza" selectedValue={this.state.pizza} onValueChange={(itemValue, itemIndex) => this.setState({pizza: itemValue})}>
-          {pizzasItem}
-        </Picker>
+          <Picker placeholder="Escolha sua pizza" selectedValue={this.state.pizza} onValueChange={(itemValue, itemIndex) => this.setState({ pizza: itemValue })}>
+            {pizzasItem}
+          </Picker>
         </View>
 
-        <Text style={styles.textoMaior}>{this.selected(this.state.pizza)}</Text>
 
-        <Text style={styles.texto}>{this.state.pizzas[this.state.pizza].nome}{this.state.pizzas[this.state.pizza].valor ? "\nR$ " + this.state.pizzas[this.state.pizza].valor.toFixed(2).toString().replaceAll('.', ',') : null}</Text>
+        {this.state.pizzas[this.state.pizza].valor !== null && (
+          <>
+
+            <Text style={styles.textoMaior}>{this.selected(this.state.pizza)}</Text>
+
+            <Text style={styles.texto}>{this.state.pizzas[this.state.pizza].nome}{"\n\nR$ " + ((this.state.pizzas[this.state.pizza].valor) * this.state.quantidade).toFixed(2).toString().replaceAll('.', ',')}</Text>
+
+            <TextInput
+              style={styles.quantidadeInput}
+              underlineColorAndroid="transparent"
+              placeholder='Quantidade'
+              placeholderTextColor="rgba(238, 238, 238, 0.5)"
+              value={this.state.quantidade.toString()}
+              onChangeText={(quantidade) => this.onChanged(quantidade)}
+            />
+
+            <Slider
+              value={parseInt(this.state.quantidade || '0', 10)}
+              style={styles.quantidadeInputSlider}
+              minimumValue={1}
+              maximumValue={100}
+              onValueChange={(sliderValue) => this.setState({ quantidade: sliderValue.toFixed(0) })}
+              minimumTrackTintColor="#eee"
+              thumbTintColor="#eee"
+            />
+          </>
+        )}
 
       </View>
 
@@ -84,7 +156,25 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingHorizontal: 20,
     borderRadius: 12,
-    color: '#eee', width: screenWidth * 0.8,
+    color: '#eee',
+    width: screenWidth * 0.8,
+    alignSelf: 'center',
+    textAlign: 'center',
+  },
+  quantidadeInput: {
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: '#eee',
+    fontSize: 20,
+    borderRadius: 12,
+    color: '#eee',
+    width: screenWidth * 0.4,
+    alignSelf: 'center',
+    textAlign: 'center',
+  },
+  quantidadeInputSlider: {
+    width: screenWidth * 0.6,
+    paddingTop: 20,
     alignSelf: 'center',
     textAlign: 'center',
   },
@@ -97,7 +187,7 @@ const styles = StyleSheet.create({
     color: '#eee',
     fontWeight: 'bold'
   },
-  textoMaior:{
+  textoMaior: {
     textAlign: 'center',
     fontSize: 24,
     paddingTop: 50,
