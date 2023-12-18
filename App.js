@@ -118,7 +118,7 @@ export default class hubcenter extends Component {
 
       <View style={styles.container}>
 
-        <ScrollView>
+        <ScrollView >
 
           <Text style={styles.logo}>Menu Pizza</Text>
 
@@ -138,14 +138,31 @@ export default class hubcenter extends Component {
 
               <Text style={styles.texto}>{this.state.pizzas[this.state.pizza].nome}{"\n\nR$ " + ((this.state.pizzas[this.state.pizza].valor) * this.state.quantidade).toFixed(2).toString().replaceAll('.', ',')}</Text>
 
-              <TextInput
-                style={styles.quantidadeInput}
-                underlineColorAndroid="transparent"
-                placeholder='Quantidade'
-                placeholderTextColor="rgba(238, 238, 238, 0.5)"
-                value={this.state.quantidade.toString()}
-                onChangeText={(quantidade) => this.onChanged(quantidade)}
-              />
+              <View style={styles.inputContainer}>
+                <TouchableOpacity
+                  onPress={() => this.onChanged((parseInt(this.state.quantidade) - 1).toString())}
+                  style={styles.botaoPequeno}
+                >
+                  <Text style={styles.botaoTexto}>-</Text>
+                </TouchableOpacity>
+
+                <TextInput
+                  style={styles.quantidadeInput}
+                  underlineColorAndroid="transparent"
+                  placeholder='Quantidade'
+                  placeholderTextColor="rgba(238, 238, 238, 0.5)"
+                  value={this.state.quantidade.toString()}
+                  onChangeText={(quantidade) => this.onChanged(quantidade)}
+                />
+
+                <TouchableOpacity
+                  onPress={() => this.onChanged((parseInt(this.state.quantidade) + 1).toString())}
+                  style={styles.botaoPequeno}
+                >
+                  <Text style={styles.botaoTexto}>+</Text>
+                </TouchableOpacity>
+              </View>
+
 
               <Slider
                 value={parseInt(this.state.quantidade || '0', 10)}
@@ -222,16 +239,31 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
   },
+  inputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   quantidadeInput: {
-    marginTop: 15,
     borderWidth: 1,
     borderColor: '#eee',
     fontSize: 20,
     borderRadius: 12,
     color: '#eee',
     width: screenWidth * 0.4,
-    alignSelf: 'center',
     textAlign: 'center',
+  },
+  botaoPequeno: {
+    width: 50,
+    height: 50,
+    backgroundColor: 'transparent',
+    borderColor: '#eee',
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 30,
   },
   quantidadeInputSlider: {
     width: screenWidth * 0.6,
