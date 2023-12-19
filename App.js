@@ -193,7 +193,7 @@ export default class hubcenter extends Component {
         {!this.state.isKeyboardVisible && this.state.pizzas[this.state.pizza].valor !== null && (
           <TouchableOpacity
             onPress={this.alerta}
-            style={styles.botaoPizza}
+            style={styles.botaoFinish}
           >
             <Text style={styles.botaoTexto}>Realizar pedido</Text>
           </TouchableOpacity>
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  botaoPizza: {
+  botaoFinish: {
     position: 'absolute',
     bottom: 30,
     width: 200,
